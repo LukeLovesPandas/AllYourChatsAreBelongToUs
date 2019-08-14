@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using AllYourChatsAreBelongToUs.Database.User;
 using AllYourChatsAreBelongToUs.Services.Integrations;
 
 namespace AllYourChatsAreBelongToUs
@@ -25,6 +27,7 @@ namespace AllYourChatsAreBelongToUs
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddDbContext<UserContext>(opt => opt.UseInMemoryDatabase(databaseName: "UserContext"));
             services.AddHttpClient<SlackIntegrationClient>();
         }
 

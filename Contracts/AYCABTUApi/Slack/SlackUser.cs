@@ -3,11 +3,9 @@ using System.Runtime.Serialization;
 namespace AllYourChatsAreBelongToUs.Contracts.AYCABTUApi.Slack {
 
     [DataContract]
-    public class SlackUser : BaseUser {
-
-        [DataMember] public string Id { get; set; }
+    public class SlackUser : ChatUser {
         [DataMember] public string TeamId { get; set;}
-        [DataMember] public string Name { get; set; }
+
         [DataMember] public bool Deleted { get; set; }
         
         [DataMember] public string Color { get; set; }
