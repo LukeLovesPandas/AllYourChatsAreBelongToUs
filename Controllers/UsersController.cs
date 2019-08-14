@@ -1,94 +1,92 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using AllYourChatsAreBelongToUs.Database.User;
+using AllYourChatsAreBelongToUs.Services;
 using AllYourChatsAreBelongToUs.Services.Integrations;
 using AllYourChatsAreBelongToUs.Contracts.SlackIntegration;
-
+using AllYourChatsAreBelongToUs.Contracts;
+using AllYourChatsAreBelongToUs.Contracts.AYCABTUApi;
+using AllYourChatsAreBelongToUs.Contracts.Extensions;
+using AllYourChatsAreBelongToUs.Contracts.AYCABTUApi.Slack;
 namespace AllYourChatsAreBelongToUs.Controllers
 {
     [Route("api/users")]
     public class UsersController : Controller
     {
         private readonly SlackIntegrationClient _slackClient;
-        private readonly UserContext _userContext;
-        public UsersController(SlackIntegrationClient slackClient, UserContext userContext) {
-            _slackClient = slackClient;
-            _userContext = userContext;
 
-            if (_userContext.Users.Count() == 0) {
-                // Temporary for testing
-                _userContext.Users.Add(new UserEntity {
-                    UserId = Guid.NewGuid(),
+        // private readonly Dictionary<Guid, IUserClient<T, T>> _userClientDictionary;
+        private readonly UserService _userService;
+        public UsersController(SlackIntegrationClient slackClient, UserService userService) {
+            _slackClient = slackClient;
+            _userService = userService;
+
+            if (_userService.GetAllUsers().Count == 0) {
+                _userService.AddUser(new UserEntity {
                     FirstName =  "Luke",
                     LastName = "Dieter",
                     IsActive = true,
                     Title = "Mr.",
                     TimeZoneId = 22,
-                    ChatIntegrations = new List<ChatIntegration> {
-                        new SlackIntegration {
+                    ChatIntegrations = new List<ChatIntegrationEntity> {
+                        new SlackIntegrationEntity {
                             ApplicationId = "1",
                             SlackUserId = "1", 
                         }
                     }
                 });
-                _userContext.Users.Add(new UserEntity {
-                    UserId = Guid.NewGuid(),
-                    FirstName =  "Luke3",
-                    LastName = "Dieter3",
-                    IsActive = true,
-                    Title = "Mr.",
-                    TimeZoneId = 22,
-                    ChatIntegrations = new List<ChatIntegration> {
-                        new SlackIntegration {
-                            ApplicationId = "1",
-                            SlackUserId = "1", 
-                        }
-                    }
-                });
-                _userContext.SaveChanges();
             }
 
         }
         // GET api/users
         [HttpGet]
-        public async Task<UserInfo> Get([FromQuery] string appId, [FromQuery] string userId)
+        public async Task<ActionResult<BaseUserWithChatUserInfo>> Get([FromQuery] Guid userId)
         {
-            var userInfo = await _slackClient.GetUserInfo(appId,userId);
-            return userInfo;
+            BaseUserWithChatUserInfo returnUser = new BaseUserWithChatUserInfo();
+            var userEntity = _userService.GetUser(userId);
+            if (userEntity == null) return StatusCode(404);
+            returnUser.MapUserEntityToBaseUser(userEntity);
+            SlackIntegrationEntity sIE = (SlackIntegrationEntity) userEntity.ChatIntegrations.Find(x => Guid.Equals(x.IntegrationId, Constants.SlackIntegrationId));
+
+            UserInfo userInfo = await _slackClient.GetUserInfo(new UserRequestParameters {
+                applicationId = sIE.ApplicationId,
+                userId = sIE.SlackUserId
+            });
+
+            if (userInfo == null) return StatusCode(404);
+            returnUser.ChatUserDetails = new List<ChatUser>{
+                userInfo.CreateNewSlackUserFromUserInfo()
+            };
+            return returnUser;
         }
 
         [HttpGet]
         [Route("GetAll")]
-        public async Task<ActionResult<List<UserEntity>>> GetAll() {
-            return await _userContext.Users.Include("ChatIntegrations").ToListAsync();
+        public ActionResult<List<UserEntity>> GetAll() {
+            return _userService.GetAllUsers();
         }
 
         [HttpGet]
         [Route("AddOne")]
-        public async Task<ActionResult<List<UserEntity>>> PostOne() {
+        public ActionResult<List<UserEntity>> PostOne() {
                 // Temporary for testing
-            var theGuid = Guid.NewGuid();
-            _userContext.Users.Add(new UserEntity {
-                UserId = theGuid,
+            var addedUser = _userService.AddUser(new UserEntity {
+                UserId = Guid.NewGuid(),
                 FirstName =  "Luke",
                 LastName = "Dieter",
                 IsActive = true,
                 Title = "Mr.",
                 TimeZoneId = 22,
-                ChatIntegrations = new List<ChatIntegration> {
-                    new SlackIntegration {
+                ChatIntegrations = new List<ChatIntegrationEntity> {
+                    new SlackIntegrationEntity {
                         ApplicationId = "1",
                         SlackUserId = "1", 
                     }
                 }
             });
-            _userContext.SaveChanges();
-            var savedItem = await _userContext.Users.FindAsync(theGuid);
-            return Ok(savedItem);
+            return Ok(addedUser);
         }
     }
 }

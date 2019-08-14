@@ -8,7 +8,7 @@ using AllYourChatsAreBelongToUs.Contracts.SlackIntegration;
 
 namespace AllYourChatsAreBelongToUs.Services.Integrations {
 
-    public class SlackIntegrationClient {
+    public class SlackIntegrationClient : IUserClient<UserRequestParameters, UserInfo> {
 
         public HttpClient Client { get; set; }
         public SlackIntegrationClient(HttpClient client) {
@@ -16,11 +16,11 @@ namespace AllYourChatsAreBelongToUs.Services.Integrations {
             Client = client;
         }
 
-        public async Task<UserInfo> GetUserInfo(string token, string userId) {
+        public async Task<UserInfo> GetUserInfo(UserRequestParameters userRequestParameters) {
             UserInfo userInfo = null; 
             var query = HttpUtility.ParseQueryString(string.Empty);
-            query["token"] = token;
-            query["user"] = userId;
+            query["token"] = userRequestParameters.applicationId;
+            query["user"] = userRequestParameters.userId;
             var response = await Client.GetAsync($"/api/users.info?{query.ToString()}");
             response.EnsureSuccessStatusCode();
             var responseString = await response.Content.ReadAsStringAsync();

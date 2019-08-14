@@ -17,6 +17,6 @@ namespace AllYourChatsAreBelongToUs.Database.User {
     
         public int TimeZoneId { get; set; }
 
-        public List<ChatIntegration> ChatIntegrations  { get; set; }
+        public List<ChatIntegrationEntity> ChatIntegrations  { get; set; }
     }
 }

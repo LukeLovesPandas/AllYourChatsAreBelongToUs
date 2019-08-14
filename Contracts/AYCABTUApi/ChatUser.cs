@@ -6,7 +6,7 @@ namespace AllYourChatsAreBelongToUs.Contracts.AYCABTUApi {
     public class ChatUser {
 
         [DataMember]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         [DataMember] 
         public string UserName { get; set; }
     }

@@ -4,6 +4,7 @@ namespace AllYourChatsAreBelongToUs.Contracts.AYCABTUApi.Slack {
 
     [DataContract]
     public class SlackUser : ChatUser {
+        [DataMember] public string ChatDetailsType { get  => "SlackUserDetails";}
         [DataMember] public string TeamId { get; set;}
 
         [DataMember] public bool Deleted { get; set; }
