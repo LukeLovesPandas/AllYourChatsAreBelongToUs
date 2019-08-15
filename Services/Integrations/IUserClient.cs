@@ -1,8 +1,10 @@
 using System.Threading.Tasks;
+using AllYourChatsAreBelongToUs.Contracts;
+using AllYourChatsAreBelongToUs.Database.User;
 
 namespace AllYourChatsAreBelongToUs.Services.Integrations {
-    public interface IUserClient<TUserRequest, TUserResponse>
+    public interface IUserClient
     {
-        Task<TUserResponse> GetUserInfo(TUserRequest userRequest);
+        Task<BaseUserResponse> GetUserInfo(ChatIntegrationEntity integrationEntity);
     }
 }

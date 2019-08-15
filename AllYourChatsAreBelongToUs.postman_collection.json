@@ -1,0 +1,351 @@
+{
+	"info": {
+		"_postman_id": "f50b8764-a672-4c48-929d-1eff663b6d54",
+		"name": "AllYourChatsAreBelongToUs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get All Users with Integrations Info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "af6e85f5-1af4-4198-a4c0-479b76fda43c",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"pm.environment.set(\"defaultUserId\", jsonData[0].userId)",
+							"if (!!jsonData[0].chatIntegrations && jsonData[0].chatIntegrations.length > 0) {",
+							"    pm.environment.set(\"defaultIntegrationInstanceId\", jsonData[0].chatIntegrations[0].id)",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:5000/api/users/GetAll",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"GetAll"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Direct Slack Integration Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://slack.com/api/users.info?token={{slackToken}}&user={{slackUserId}}",
+					"protocol": "https",
+					"host": [
+						"slack",
+						"com"
+					],
+					"path": [
+						"api",
+						"users.info"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "{{slackToken}}"
+						},
+						{
+							"key": "user",
+							"value": "{{slackUserId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Specific User With Chat Details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:5000/api/users/GetWithChatDetails?userId={{defaultUserId}}",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"GetWithChatDetails"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{defaultUserId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Specific User With Integration Details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:5000/api/users/GetWithIntegrationDetails?userId={{defaultUserId}}",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"GetWithIntegrationDetails"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{defaultUserId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add New Integration to User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c47d475b-3239-4813-b5b6-640d609d261f",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"pm.environment.set(\"defaultIntegrationInstanceId\", jsonData.instanceId)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"slackToken\": \"{{slackToken}}\",\r\n    \"slackUserId\": \"{{slackUserId}}\",\r\n    \"instanceId\": \"4fc2d069-8d7c-4c81-84ef-a14006421052\",\r\n    \"integrationId\": \"5722cc51-6e19-4ec4-9d36-3b071905a58c\",\r\n    \"name\": \"Slackss\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "localhost:5000/api/users/integration?userId={{defaultUserId}}",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"integration"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{defaultUserId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Existing User",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"integrationsDetails\": [\r\n        {\r\n\t\t    \"slackToken\": \"{{slackToken}}\",\r\n\t\t    \"slackUserId\": \"{{slackUserId}}\",\r\n            \"instanceId\": \"4fc2d069-8d7c-4c81-84ef-a14006421052\",\r\n            \"integrationId\": \"5722cc51-6e19-4ec4-9d36-3b071905a58c\",\r\n            \"name\": \"Slackss\"\r\n        }\r\n    ],\r\n    \"userId\": \"{{defaultUserId}}\",\r\n    \"title\": \"Mr.\",\r\n    \"firstName\": \"Luke\",\r\n    \"lastName\": \"Dooterss\",\r\n    \"isActive\": true,\r\n    \"timeZoneId\": 22\r\n}"
+				},
+				"url": {
+					"raw": "localhost:5000/api/users",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Existing User",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:5000/api/users?userId={{defaultUserId}}",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{defaultUserId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create New User",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"integrationsDetails\": [\r\n        {\r\n\t\t    \"slackToken\": \"{{slackToken}}\",\r\n\t\t    \"slackUserId\": \"{{slackUserId}}\",\r\n            \"instanceId\": \"4fc2d069-8d7c-4c81-84ef-a14006421052\",\r\n            \"integrationId\": \"5722cc51-6e19-4ec4-9d36-3b071905a58c\",\r\n            \"name\": \"Slackss\"\r\n        }\r\n    ],\r\n    \"userId\": \"{{defaultUserId}}\",\r\n    \"title\": \"Mr.\",\r\n    \"firstName\": \"Luke\",\r\n    \"lastName\": \"Dooterss\",\r\n    \"isActive\": true,\r\n    \"timeZoneId\": 22\r\n}"
+				},
+				"url": {
+					"raw": "localhost:5000/api/users",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Existing Integration for User",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"slackToken\": \"{{slackToken}}\",\r\n    \"slackUserId\": \"{{slackUserId}}\",\r\n    \"instanceid\": \"{{defaultIntegrationInstanceId}}\",\r\n    \"integrationId\": \"5722cc51-6e19-4ec4-9d36-3b071905a58c\",\r\n    \"name\": \"Slack\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "localhost:5000/api/users/integration?userId={{defaultUserId}}",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"integration"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{defaultUserId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Existing Integration from User",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:5000/api/users/integration?userId={{defaultUserId}}&instanceId={{defaultIntegrationInstanceId}}",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"integration"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{defaultUserId}}"
+						},
+						{
+							"key": "instanceId",
+							"value": "{{defaultIntegrationInstanceId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -2,7 +2,7 @@ using AllYourChatsAreBelongToUs.Contracts;
 namespace AllYourChatsAreBelongToUs.Database.User {
     public class SlackIntegrationEntity : ChatIntegrationEntity {
 
-        public string ApplicationId { get; set; }
+        public string SlackToken { get; set; }
 
         public string SlackUserId { get; set; }
 

@@ -1,11 +1,11 @@
 using System.Runtime.Serialization;
 
-namespace AllYourChatsAreBelongToUs.Contracts.AYCABTUApi.Slack {
+namespace AllYourChatsAreBelongToUs.Contracts.ViewModels.Slack {
     [DataContract]
     public class SlackIntegration : ChatIntegration {
 
         [DataMember]
-        public string ApplicationId { get; set; }
+        public string SlackToken { get; set; }
         [DataMember]
         public string SlackUserId { get; set; }
     }

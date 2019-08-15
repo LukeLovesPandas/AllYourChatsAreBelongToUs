@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace AllYourChatsAreBelongToUs.Contracts.AYCABTUApi {
+namespace AllYourChatsAreBelongToUs.Contracts.ViewModels {
     [DataContract]
     public class BaseUser {
 

@@ -8,6 +8,7 @@ namespace AllYourChatsAreBelongToUs.Database.User {
             modelBuilder.Entity<SlackIntegrationEntity>().HasBaseType<ChatIntegrationEntity>();            
         }
 
-        public DbSet<UserEntity> Users {get; set;}        
+        public DbSet<UserEntity> Users {get; set;}      
+        public DbSet<ChatIntegrationEntity> ChatIntegrations {get; set;}         
     }
 }

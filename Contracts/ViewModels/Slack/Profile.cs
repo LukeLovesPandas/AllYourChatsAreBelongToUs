@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace AllYourChatsAreBelongToUs.Contracts.AYCABTUApi.Slack {
+namespace AllYourChatsAreBelongToUs.Contracts.ViewModels.Slack {
     [DataContract]
     public class Profile {
 

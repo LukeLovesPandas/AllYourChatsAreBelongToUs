@@ -34,12 +34,25 @@ namespace AllYourChatsAreBelongToUs.Services {
         public UserEntity UpdateUser(UserEntity userToUpdate) {
             UserEntity returnUser = _userContext.Users.Find(userToUpdate.UserId);
             if (returnUser == null) return null;
-            returnUser.Title = userToUpdate.Title;
-            returnUser.FirstName = userToUpdate.FirstName;
-            returnUser.LastName = userToUpdate.LastName;
-            returnUser.IsActive = userToUpdate.IsActive;
-            returnUser.TimeZoneId = userToUpdate.TimeZoneId;
-            returnUser.ChatIntegrations = userToUpdate.ChatIntegrations;
+            _userContext.Entry(returnUser).CurrentValues.SetValues(userToUpdate);
+
+            //Remove old entries
+            returnUser.ChatIntegrations?.ForEach(x => {
+                var matched = userToUpdate.ChatIntegrations?.Find(y => y.Id.Equals(x.Id));
+                if (matched == null)  _userContext.ChatIntegrations.Remove(x);             
+            });
+
+            //Add and update new
+            userToUpdate.ChatIntegrations?.ForEach(x => {
+                var matched = returnUser.ChatIntegrations?.Find(y => y.Id.Equals(x.Id));
+                if (matched != null) {
+                    _userContext.Entry(matched).CurrentValues.SetValues(x);
+                } else {
+                    x.Id = Guid.NewGuid();
+                    returnUser.ChatIntegrations.Add(x);
+                }
+            });
+
             _userContext.SaveChanges();
             return returnUser;
         }
@@ -47,6 +60,9 @@ namespace AllYourChatsAreBelongToUs.Services {
         public bool DeleteUser(Guid userId) {
             UserEntity foundUser = _userContext.Users.Find(userId);
             if (foundUser == null) return false;
+            foundUser.ChatIntegrations?.ForEach(x => {
+                _userContext.ChatIntegrations.Remove(x);             
+            });
             _userContext.Users.Remove(foundUser);
             _userContext.SaveChanges();
             return true;
@@ -62,13 +78,12 @@ namespace AllYourChatsAreBelongToUs.Services {
             return integration;
         }
 
-        public ChatIntegrationEntity UpdateIntegrationForUser<TChatIntegrationEntity>(ChatIntegrationEntity integration, Guid userId) where TChatIntegrationEntity : ChatIntegrationEntity {
+        public ChatIntegrationEntity UpdateIntegrationForUser(ChatIntegrationEntity integration, Guid userId) {
             UserEntity foundUser = _userContext.Users.Find(userId);
             if (foundUser == null) return null;
-            var existingIntegration = foundUser.ChatIntegrations.Find(x => Guid.Equals(x.Id, integration.Id));
+            var existingIntegration = foundUser.ChatIntegrations?.Find(x => Guid.Equals(x.Id, integration.Id));
             if (foundUser != null && existingIntegration == null) return null;
-            foundUser.ChatIntegrations.Remove(existingIntegration);
-            foundUser.ChatIntegrations.Add(integration);
+            _userContext.Entry(existingIntegration).CurrentValues.SetValues(integration);
             _userContext.SaveChanges();
             return integration;
         }
